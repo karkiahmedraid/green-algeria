@@ -5,7 +5,7 @@ const Header = () => {
     <header className="bg-gradient-to-r from-green-600 to-emerald-600 text-white py-8 px-4 shadow-2xl">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-center gap-3 mb-3">
-          <TreeDeciduous size={48} className="animate-bounce" />
+          <TreeDeciduous size={48} />
           <h1 className="text-4xl md:text-5xl font-bold text-center">
             Algeria Tree Planting Campaign
           </h1>

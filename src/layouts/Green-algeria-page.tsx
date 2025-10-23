@@ -171,9 +171,10 @@ const AlgeriaTreeCampaign = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
       <Header />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <StatsCards treeCount={trees.length} />
+      <div className="max-w-6xl mx-auto px-4 py-8"> 
         <HowToParticipate />
+        <StatsCards treeCount={trees.length} />
+       
         <DraggableTree onDragStart={handleDragStart} />
         
         <MapCanvas

@@ -173,7 +173,7 @@ const MapCanvas = ({
 
   return (
     <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Interactive Map of Algeria</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Together we make algeria green</h2>
       <p className="text-center text-gray-600 mb-4">
         Drop your tree in your region - Use mouse wheel to zoom, click and drag to pan
       </p>

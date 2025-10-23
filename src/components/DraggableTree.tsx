@@ -11,9 +11,9 @@ const DraggableTree = ({ onDragStart }: DraggableTreeProps) => {
       <div
         draggable
         onDragStart={onDragStart}
-        className="bg-green-500 hover:bg-green-600 text-white rounded-2xl shadow-xl p-8 cursor-move transform hover:scale-110 transition-all"
+        className="bg-transparent text-green-600 rounded-2xl p-8 cursor-move transform hover:scale-110 transition-all"
       >
-        <TreeDeciduous size={64} className="mx-auto mb-2" />
+        <TreeDeciduous size={64} className="mx-auto animate-bounce mb-2"  />
         <p className="text-xl font-bold text-center">Drag Me to Plant!</p>
       </div>
     </div>
