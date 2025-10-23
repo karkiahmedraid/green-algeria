@@ -4,7 +4,6 @@ import { isPointInAlgeria } from '../utils/treeUtils';
 import { useTreeStorage } from '../hooks/useTreeStorage';
 import { useZoomPan } from '../hooks/useZoomPan';
 import Header from '../components/Header';
-import StatsCards from '../components/StatsCards';
 import HowToParticipate from '../components/HowToParticipate';
 import DraggableTree from '../components/DraggableTree';
 import MapCanvas from '../components/MapCanvas';

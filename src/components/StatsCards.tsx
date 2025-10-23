@@ -1,4 +1,4 @@
-import { MapPin, Users, TreeDeciduous } from 'lucide-react';
+import {  TreeDeciduous } from 'lucide-react';
 
 interface StatsCardsProps {
   treeCount: number;
