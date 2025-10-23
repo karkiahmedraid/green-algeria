@@ -4,7 +4,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import AlgeriaTreeCampaign from './layouts/Green-algeria-page'
 function App() {
-  const [count, setCount] = useState(0)
+
 
   return (
    
