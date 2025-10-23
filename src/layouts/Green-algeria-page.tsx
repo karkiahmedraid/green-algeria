@@ -12,7 +12,7 @@ import Footer from '../components/Footer';
 
 const AlgeriaTreeCampaign = () => {
   // Use custom hooks for state management
-  const { trees, setTrees } = useTreeStorage();
+  const { trees, addTree } = useTreeStorage();
   const {
     zoom,
     setZoom,
@@ -141,19 +141,28 @@ const AlgeriaTreeCampaign = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (formData.name && currentTree) {
-      const newTree = {
-        ...currentTree,
-        name: formData.name,
-        image: formData.imagePreview,
-        color: formData.color,
-        timestamp: new Date().toISOString()
-      };
-      setTrees([...trees, newTree]);
-      setShowModal(false);
-      setFormData({ name: '', image: null, imagePreview: null, color: '#16a34a' });
-      setCurrentTree(null);
+      try {
+        const newTree = {
+          x: currentTree.x,
+          y: currentTree.y,
+          name: formData.name,
+          image: formData.imagePreview,
+          color: formData.color,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Add tree to database
+        await addTree(newTree);
+        
+        setShowModal(false);
+        setFormData({ name: '', image: null, imagePreview: null, color: '#16a34a' });
+        setCurrentTree(null);
+      } catch (err) {
+        console.error('Failed to plant tree:', err);
+        alert('Failed to plant tree. Please try again.');
+      }
     }
   };
 
