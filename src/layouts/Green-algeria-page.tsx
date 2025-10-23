@@ -169,29 +169,38 @@ const AlgeriaTreeCampaign = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-      <Header />
+      <Header treesCount={trees.length} />
 
-      <div className="max-w-6xl mx-auto px-4 py-8"> 
-        <HowToParticipate />
-        <StatsCards treeCount={trees.length} />
-       
-        <DraggableTree onDragStart={handleDragStart} />
-        
-        <MapCanvas
-          trees={trees}
-          isDragging={isDragging}
-          hoveredTree={hoveredTree}
-          zoom={zoom}
-          panX={panX}
-          panY={panY}
-          isPanning={isPanning}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-          onMouseMove={handleCanvasMouseMove}
-          onMouseDown={handleCanvasMouseDown}
-          onMouseUp={handleCanvasMouseUp}
-          onWheel={handleWheel}
-        />
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Main content with sidebar layout */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left sidebar - How to Participate (vertical on desktop, horizontal on mobile) */}
+          <aside className="lg:w-80 flex-shrink-0">
+            <HowToParticipate />
+          </aside>
+
+          {/* Main content area */}
+          <main className="flex-1 space-y-6">
+            
+            <DraggableTree onDragStart={handleDragStart} />
+            
+            <MapCanvas
+              trees={trees}
+              isDragging={isDragging}
+              hoveredTree={hoveredTree}
+              zoom={zoom}
+              panX={panX}
+              panY={panY}
+              isPanning={isPanning}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onMouseMove={handleCanvasMouseMove}
+              onMouseDown={handleCanvasMouseDown}
+              onMouseUp={handleCanvasMouseUp}
+              onWheel={handleWheel}
+            />
+          </main>
+        </div>
       </div>
 
       <PlantTreeModal
