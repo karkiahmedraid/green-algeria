@@ -1,84 +1,38 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Upload, MapPin, Users, TreeDeciduous, X } from 'lucide-react';
-
-interface Tree {
-  id: number;
-  x: number;
-  y: number;
-  name: string;
-  image?: string | null;
-  color?: string;
-  timestamp: string;
-}
-
-interface FormData {
-  name: string;
-  image: File | null;
-  imagePreview: string | null;
-  color: string;
-}
+import React, { useState } from 'react';
+import type { Tree, FormData } from '../types/tree.types';
+import { isPointInAlgeria } from '../utils/treeUtils';
+import { useTreeStorage } from '../hooks/useTreeStorage';
+import { useZoomPan } from '../hooks/useZoomPan';
+import Header from '../components/Header';
+import StatsCards from '../components/StatsCards';
+import HowToParticipate from '../components/HowToParticipate';
+import DraggableTree from '../components/DraggableTree';
+import MapCanvas from '../components/MapCanvas';
+import PlantTreeModal from '../components/PlantTreeModal';
+import Footer from '../components/Footer';
 
 const AlgeriaTreeCampaign = () => {
-  const [trees, setTrees] = useState<Tree[]>([]);
+  // Use custom hooks for state management
+  const { trees, setTrees } = useTreeStorage();
+  const {
+    zoom,
+    setZoom,
+    panX,
+    setPanX,
+    panY,
+    setPanY,
+    isPanning,
+    setIsPanning,
+    panStart,
+    setPanStart
+  } = useZoomPan();
+
+  // Local component state
   const [isDragging, setIsDragging] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [currentTree, setCurrentTree] = useState<{ x: number; y: number; id: number } | null>(null);
   const [hoveredTree, setHoveredTree] = useState<number | null>(null);
   const [formData, setFormData] = useState<FormData>({ name: '', image: null, imagePreview: null, color: '#16a34a' });
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Zoom and pan state
-  const [zoom, setZoom] = useState(1);
-  const [panX, setPanX] = useState(0);
-  const [panY, setPanY] = useState(0);
-  const [isPanning, setIsPanning] = useState(false);
-  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const loadTrees = async () => {
-      try {
-        const result = await (window as any).storage.get('algeria-trees-data', true);
-        if (result && result.value) {
-          setTrees(JSON.parse(result.value));
-        }
-      } catch (error) {
-        console.log('No existing trees data');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadTrees();
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading && trees.length > 0) {
-      const saveTrees = async () => {
-        try {
-          await (window as any).storage.set('algeria-trees-data', JSON.stringify(trees), true);
-        } catch (error) {
-          console.error('Failed to save trees:', error);
-        }
-      };
-      saveTrees();
-    }
-  }, [trees, isLoading]);
-
-  // Prevent page scroll when mouse is over canvas
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const preventScroll = (e: WheelEvent) => {
-      e.preventDefault();
-    };
-
-    canvas.addEventListener('wheel', preventScroll, { passive: false });
-
-    return () => {
-      canvas.removeEventListener('wheel', preventScroll);
-    };
-  }, []);
 
   // Accurate Algeria border coordinates extracted from actual SVG
   const getAlgeriaBorderPath = () => {
