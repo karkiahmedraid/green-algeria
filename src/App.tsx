@@ -1,6 +1,6 @@
 
 import './App.css'
-import AlgeriaTreeCampaign from './layouts/Green-algeria-page'
+import AlgeriaTreeCampaign from './layouts/Green-algeria-page';
 function App() {
 
 
