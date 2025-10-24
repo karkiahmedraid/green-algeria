@@ -1,4 +1,4 @@
-import { TreeDeciduous } from 'lucide-react';
+
 
 interface HeaderProps {
   treesCount: number;
