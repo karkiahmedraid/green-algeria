@@ -1,4 +1,4 @@
-import { getTrees, createTree, deleteTree, getTreeCount, type DbTree } from '../lib/db';
+import { getTrees, createTree, deleteTree, getTreeCount, getTreeById, type DbTree } from '../lib/db';
 import type { Tree } from '../types/tree.types';
 
 /**
@@ -82,6 +82,19 @@ export const treeService = {
     } catch (error) {
       console.error('Tree service: Error counting trees', error);
       return 0;
+    }
+  },
+
+  /**
+   * Fetch a single tree by ID with its image
+   */
+  async fetchTreeById(id: number): Promise<Tree | null> {
+    try {
+      const dbTree = await getTreeById(id);
+      return dbTree ? dbTreeToTree(dbTree) : null;
+    } catch (error) {
+      console.error('Tree service: Error fetching tree by ID', error);
+      throw error;
     }
   },
 };

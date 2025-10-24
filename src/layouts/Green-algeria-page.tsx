@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { FormData } from "../types/tree.types";
 import { isPointInAlgeria } from "../utils/treeUtils";
 import { useTreeStorage } from "../hooks/useTreeStorage";
@@ -6,8 +6,10 @@ import { useZoomPan } from "../hooks/useZoomPan";
 import {
   basicImageValidation,
   validateImageDimensions,
+  compressImage,
 } from "../utils/imageValidation";
 import { checkImageNSFW } from "../utils/nsfwDetection";
+import { treeService } from "../services/treeService";
 import Header from "../components/Header";
 import HowToParticipate from "../components/HowToParticipate";
 import HadithSection from "../components/HadithSection";
@@ -48,6 +50,67 @@ const AlgeriaTreeCampaign = () => {
     color: "#16a34a",
   });
   const [isValidatingImage, setIsValidatingImage] = useState(false);
+  
+  // Image cache and hover timeout for lazy loading
+  const [imageCache, setImageCache] = useState<Map<number, string>>(new Map());
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const loadingTreesRef = useRef<Set<number>>(new Set());
+
+  // Lazy load tree image on hover
+  useEffect(() => {
+    if (!hoveredTree) {
+      // Clear timeout if hover ends
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+        hoverTimeoutRef.current = null;
+      }
+      return;
+    }
+
+    // If image is already cached, no need to load
+    if (imageCache.has(hoveredTree)) {
+      return;
+    }
+
+    // If already loading this tree, don't load again
+    if (loadingTreesRef.current.has(hoveredTree)) {
+      return;
+    }
+
+    // Set timeout to load image after 2 seconds of hover
+    hoverTimeoutRef.current = setTimeout(async () => {
+      try {
+        loadingTreesRef.current.add(hoveredTree);
+        console.log(`جاري تحميل صورة الشجرة ${hoveredTree}...`);
+        
+        const treeWithImage = await treeService.fetchTreeById(hoveredTree);
+        
+        if (treeWithImage && treeWithImage.image) {
+          setImageCache(prev => {
+            const newCache = new Map(prev);
+            newCache.set(hoveredTree, treeWithImage.image!);
+            return newCache;
+          });
+          
+          // Update the tree in the list with the loaded image
+          const treeIndex = trees.findIndex(t => t.id === hoveredTree);
+          if (treeIndex !== -1) {
+            trees[treeIndex].image = treeWithImage.image;
+          }
+        }
+      } catch (error) {
+        console.error(`فشل تحميل صورة الشجرة ${hoveredTree}:`, error);
+      } finally {
+        loadingTreesRef.current.delete(hoveredTree);
+      }
+    }, 2000); // 2 seconds delay
+
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+    };
+  }, [hoveredTree, imageCache, trees]);
 
   // Drag and drop handlers
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
@@ -240,63 +303,79 @@ const AlgeriaTreeCampaign = () => {
       return;
     }
 
-    // Read file for preview and NSFW check
-    const reader = new FileReader();
-    reader.onloadend = async () => {
-      const base64 = reader.result as string;
-
-      // Create image element for NSFW detection
+    try {
+      setIsValidatingImage(true);
+      
+      // Step 3: Compress image to 50KB maximum
+      console.log("جاري ضغط الصورة...");
+      const compressedBase64 = await compressImage(file, 50);
+      
+      // Step 4: Create image element for NSFW detection
       const img = new Image();
-      img.onload = async () => {
-        try {
-          // Step 3: NSFW Detection (1-2 seconds - content safety check)
-          setIsValidatingImage(true);
-          console.log("جاري فحص محتوى الصورة...");
-          const nsfwCheck = await checkImageNSFW(img);
-          setIsValidatingImage(false);
+      
+      await new Promise<void>((resolve, reject) => {
+        img.onload = async () => {
+          try {
+            // Step 5: NSFW Detection (1-2 seconds - content safety check)
+            console.log("جاري فحص محتوى الصورة...");
+            const nsfwCheck = await checkImageNSFW(img);
 
-          if (!nsfwCheck.isSafe) {
-            alert(
-              nsfwCheck.reason ||
-                "يبدو أن هذه الصورة تحتوي على محتوى غير لائق. يرجى تحميل صورة عائلية مناسبة متعلقة بغرس الأشجار."
-            );
-            e.target.value = ""; // Reset input
-            return;
+            if (!nsfwCheck.isSafe) {
+              setIsValidatingImage(false);
+              alert(
+                nsfwCheck.reason ||
+                  "يبدو أن هذه الصورة تحتوي على محتوى غير لائق. يرجى تحميل صورة عائلية مناسبة متعلقة بغرس الأشجار."
+              );
+              e.target.value = ""; // Reset input
+              reject(new Error("NSFW content detected"));
+              return;
+            }
+
+            // All checks passed - set the compressed image
+            console.log("تم التحقق من الصورة وضغطها بنجاح!");
+            setFormData({
+              ...formData,
+              image: file,
+              imagePreview: compressedBase64,
+            });
+            setIsValidatingImage(false);
+            resolve();
+          } catch (error) {
+            setIsValidatingImage(false);
+            reject(error);
           }
+        };
 
-          // All checks passed - set the image
-          console.log("تم التحقق من الصورة بنجاح!");
-          setFormData({
-            ...formData,
-            image: file,
-            imagePreview: base64,
-          });
-        } catch (error) {
-          console.error("خطأ في التحقق من الصورة:", error);
+        img.onerror = () => {
           setIsValidatingImage(false);
-          alert("حدث خطأ أثناء التحقق من الصورة. يرجى تجربة صورة أخرى.");
+          alert("فشل تحميل الصورة. يرجى تجربة ملف آخر.");
           e.target.value = ""; // Reset input
-        }
-      };
+          reject(new Error("Failed to load image"));
+        };
 
-      img.onerror = () => {
-        alert("فشل تحميل الصورة. يرجى تجربة ملف آخر.");
-        e.target.value = ""; // Reset input
-      };
-
-      img.src = base64;
-    };
-
-    reader.onerror = () => {
-      alert("فشل قراءة ملف الصورة.");
+        img.src = compressedBase64;
+      });
+    } catch (error) {
+      console.error("خطأ في معالجة الصورة:", error);
+      setIsValidatingImage(false);
+      alert("حدث خطأ أثناء معالجة الصورة. يرجى تجربة صورة أخرى.");
       e.target.value = ""; // Reset input
-    };
-
-    reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async () => {
-    if (formData.name && currentTree) {
+    // Validate required fields
+    if (!formData.name || !formData.name.trim()) {
+      alert("يرجى إدخال اسمك");
+      return;
+    }
+
+    if (!formData.imagePreview) {
+      alert("يرجى تحميل صورة من حدث الغرس");
+      return;
+    }
+
+    if (currentTree) {
       try {
         const newTree = {
           x: currentTree.x,

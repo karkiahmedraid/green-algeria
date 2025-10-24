@@ -40,13 +40,16 @@ const PlantTreeModal = ({
         </div>
         <div>
           <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2">اسمك</label>
+            <label className="block text-gray-700 font-semibold mb-2">
+              اسمك <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => onFormChange({ name: e.target.value })}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none"
               placeholder="أدخل اسمك"
+              required
             />
           </div>
           <div className="mb-6">
@@ -85,7 +88,9 @@ const PlantTreeModal = ({
             </div>
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 font-semibold mb-2">تحميل الصورة</label>
+            <label className="block text-gray-700 font-semibold mb-2">
+              تحميل الصورة <span className="text-red-500">*</span>
+            </label>
             <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-green-500 transition-colors relative">
               <input
                 type="file"
@@ -94,6 +99,7 @@ const PlantTreeModal = ({
                 className="hidden"
                 id="image-upload"
                 disabled={isValidatingImage}
+                required
               />
               <label htmlFor="image-upload" className={isValidatingImage ? "cursor-not-allowed" : "cursor-pointer"}>
                 {isValidatingImage ? (

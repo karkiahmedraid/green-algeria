@@ -15,7 +15,7 @@ export interface DbTree {
 }
 
 /**
- * Fetch all trees from the database
+ * Fetch all trees from the database (without images for performance)
  */
 export async function getTrees(): Promise<DbTree[]> {
   try {
@@ -25,7 +25,6 @@ export async function getTrees(): Promise<DbTree[]> {
         x, 
         y, 
         name, 
-        image, 
         color, 
         timestamp,
         created_at
@@ -36,6 +35,31 @@ export async function getTrees(): Promise<DbTree[]> {
   } catch (error) {
     console.error('Error fetching trees:', error);
     throw new Error('Failed to fetch trees from database');
+  }
+}
+
+/**
+ * Fetch a single tree by ID with its image
+ */
+export async function getTreeById(id: number): Promise<DbTree | null> {
+  try {
+    const [tree] = await sql`
+      SELECT 
+        id, 
+        x, 
+        y, 
+        name, 
+        image, 
+        color, 
+        timestamp,
+        created_at
+      FROM trees 
+      WHERE id = ${id}
+    `;
+    return tree ? (tree as DbTree) : null;
+  } catch (error) {
+    console.error('Error fetching tree:', error);
+    throw new Error('Failed to fetch tree from database');
   }
 }
 
