@@ -7,9 +7,9 @@ const HowToParticipate = () => {
 
       {/* Horizontal layout for mobile, vertical for desktop */}
       {/* Always centered layout */}
-      <div className="flex justify-center items-center w-full">
-        <div className="flex flex-row lg:flex-col gap-6 overflow-x-auto lg:overflow-x-visible pb-4 lg:pb-0 justify-center items-center">
-          <div className="flex flex-col justify-center text-center min-w-[200px] lg:min-w-0">
+      <div className="flex justify-start lg:justify-center items-center w-full overflow-x-auto lg:overflow-x-visible">
+        <div className="flex flex-row lg:flex-col gap-6 pb-4 lg:pb-0 px-4 lg:px-0">
+          <div className="flex flex-col justify-center text-center min-w-[200px] lg:min-w-0 flex-shrink-0">
             <div className="bg-green-100 w-12 h-12 lg:w-16 lg:h-16 rounded-full flex items-center justify-center mx-auto mb-3">
               <span className="text-xl lg:text-2xl font-bold text-green-600">
                 1

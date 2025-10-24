@@ -7,7 +7,7 @@ interface DraggableTreeProps {
 
 const DraggableTree = ({ onDragStart }: DraggableTreeProps) => {
   return (
-    <div className="flex justify-center mb-6" dir="rtl">
+    <div className="flex  justify-center " dir="rtl">
       <div
         draggable
         onDragStart={onDragStart}
@@ -15,7 +15,7 @@ const DraggableTree = ({ onDragStart }: DraggableTreeProps) => {
       >
         {/* <TreeDeciduous size={64} className="mx-auto animate-bounce mb-2"  /> */}
 
-        <div className='flex justify-center'>
+        <div className='flex animate-bounce justify-center'>
           <svg width="80" height="80" viewBox="0 0 80 80" className="hover:scale-110 transition-transform">
             {/* Tree shadow */}
             <ellipse cx="42" cy="64" rx="12" ry="6" fill="rgba(0,0,0,0.2)" />
@@ -31,8 +31,10 @@ const DraggableTree = ({ onDragStart }: DraggableTreeProps) => {
             <circle cx="47" cy="36" r="11" fill={"green"} />
           </svg>
         </div>
-        <p className="text-xl font-bold text-center">اسحبني لغرسي! 🌱</p>
+                <p className="text-xl font-bold text-center">اسحبني لغرسي! 🌱</p>
+
       </div>
+      
     </div>
   );
 };
