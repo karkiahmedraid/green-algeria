@@ -1,4 +1,29 @@
 @import "tailwindcss";
 
+/* Prevent page zoom on mobile, allow only canvas zoom */
+body {
+  touch-action: pan-y;
+  overscroll-behavior: none;
+}
+
+/* Allow pinch zoom only on canvas */
+canvas {
+  touch-action: none;
+}
+
+/* Prevent default touch behaviors that cause page zoom */
+* {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow text selection in inputs and textareas */
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 
 

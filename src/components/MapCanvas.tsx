@@ -17,6 +17,9 @@ interface MapCanvasProps {
   onMouseDown: (e: React.MouseEvent<HTMLCanvasElement>) => void;
   onMouseUp: () => void;
   onWheel: (e: React.WheelEvent<HTMLCanvasElement>) => void;
+  onTouchStart: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+  onTouchMove: (e: React.TouchEvent<HTMLCanvasElement>) => void;
+  onTouchEnd: (e: React.TouchEvent<HTMLCanvasElement>) => void;
 }
 
 const MapCanvas = ({
@@ -32,7 +35,10 @@ const MapCanvas = ({
   onMouseMove,
   onMouseDown,
   onMouseUp,
-  onWheel
+  onWheel,
+  onTouchStart,
+  onTouchMove,
+  onTouchEnd
 }: MapCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -45,10 +51,18 @@ const MapCanvas = ({
       e.preventDefault();
     };
 
+    const preventTouch = (e: TouchEvent) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
+
     canvas.addEventListener('wheel', preventScroll, { passive: false });
+    canvas.addEventListener('touchmove', preventTouch, { passive: false });
 
     return () => {
       canvas.removeEventListener('wheel', preventScroll);
+      canvas.removeEventListener('touchmove', preventTouch);
     };
   }, []);
 
@@ -173,10 +187,10 @@ const MapCanvas = ({
 
   return (
     <div className="bg-white rounded-2xl shadow-2xl p-6 mb-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">Together we make algeria green</h2>
-      <p className="text-center text-gray-600 mb-4">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 text-center">معاً من اجل جزائر خضراء </h2>
+      {/* <p className="text-center text-gray-600 mb-4">
         Drop your tree in your region - Use mouse wheel to zoom, click and drag to pan
-      </p>
+      </p> */}
 
       <div className="relative">
         <canvas
@@ -190,6 +204,9 @@ const MapCanvas = ({
           onMouseUp={onMouseUp}
           onMouseLeave={onMouseUp}
           onWheel={onWheel}
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
           className={`w-full h-auto border-4 border-green-200 rounded-xl ${
             isDragging ? 'ring-4 ring-green-400' : ''
           } ${isPanning ? 'cursor-grabbing' : 'cursor-grab'}`}
