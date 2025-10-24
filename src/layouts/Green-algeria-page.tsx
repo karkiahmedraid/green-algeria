@@ -55,6 +55,11 @@ const AlgeriaTreeCampaign = () => {
   const [imageCache, setImageCache] = useState<Map<number, string>>(new Map());
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const loadingTreesRef = useRef<Set<number>>(new Set());
+  
+  // Touch drag state for iOS/mobile support
+  const [isTouchDragging, setIsTouchDragging] = useState(false);
+  const touchDragRef = useRef<{ startX: number; startY: number } | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Lazy load tree image on hover
   useEffect(() => {
@@ -144,6 +149,51 @@ const AlgeriaTreeCampaign = () => {
       setCurrentTree({ x, y, id: Date.now() });
       setShowModal(true);
     }
+  };
+
+  // Touch drag handlers for iOS/mobile support
+  const handleTreeTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    setIsTouchDragging(true);
+    touchDragRef.current = { startX: touch.clientX, startY: touch.clientY };
+  };
+
+  const handleCanvasTouchMove = (_e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isTouchDragging) return;
+    
+    // Visual feedback: show dragging state
+    setIsDragging(true);
+  };
+
+  const handleCanvasTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isTouchDragging) return;
+    
+    e.preventDefault();
+    setIsTouchDragging(false);
+    setIsDragging(false);
+
+    const touch = e.changedTouches[0];
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+
+    const touchX = (touch.clientX - rect.left) * scaleX;
+    const touchY = (touch.clientY - rect.top) * scaleY;
+
+    const x = (touchX - panX) / zoom;
+    const y = (touchY - panY) / zoom;
+
+    // Check if drop is within Algeria boundaries
+    if (isPointInAlgeria(x, y)) {
+      setCurrentTree({ x, y, id: Date.now() });
+      setShowModal(true);
+    }
+    
+    touchDragRef.current = null;
   };
 
   // Canvas interaction handlers
@@ -427,9 +477,13 @@ const AlgeriaTreeCampaign = () => {
 
           {/* Main content area */}
           <main className="flex-1 space-y-6">
-            <DraggableTree onDragStart={handleDragStart} />
+            <DraggableTree 
+              onDragStart={handleDragStart}
+              onTouchStart={handleTreeTouchStart}
+            />
 
             <MapCanvas
+              ref={canvasRef}
               trees={trees}
               isDragging={isDragging}
               hoveredTree={hoveredTree}
@@ -444,8 +498,14 @@ const AlgeriaTreeCampaign = () => {
               onMouseUp={handleCanvasMouseUp}
               onWheel={handleWheel}
               onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
+              onTouchMove={(e) => {
+                handleTouchMove(e);
+                handleCanvasTouchMove(e);
+              }}
+              onTouchEnd={(e) => {
+                handleTouchEnd(e);
+                handleCanvasTouchEnd(e);
+              }}
             />
           </main>
           <aside className="lg:w-[20%] flex-shrink-0">

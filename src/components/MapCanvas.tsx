@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, forwardRef } from 'react';
 import type { Tree } from '../types/tree.types';
 import { getAlgeriaBorderPath, darkenHex } from '../utils/treeUtils';
 import TreeInfoTooltip from './TreeInfoTooltip';
@@ -22,7 +22,7 @@ interface MapCanvasProps {
   onTouchEnd: (e: React.TouchEvent<HTMLCanvasElement>) => void;
 }
 
-const MapCanvas = ({
+const MapCanvas = forwardRef<HTMLCanvasElement, MapCanvasProps>(({
   trees,
   isDragging,
   hoveredTree,
@@ -39,8 +39,9 @@ const MapCanvas = ({
   onTouchStart,
   onTouchMove,
   onTouchEnd
-}: MapCanvasProps) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+}, ref) => {
+  const internalRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = (ref as React.RefObject<HTMLCanvasElement>) || internalRef;
 
   // Prevent page scroll when mouse is over canvas
   useEffect(() => {
@@ -215,6 +216,8 @@ const MapCanvas = ({
       </div>
     </div>
   );
-};
+});
+
+MapCanvas.displayName = 'MapCanvas';
 
 export default MapCanvas;

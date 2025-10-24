@@ -1,16 +1,17 @@
 import React from "react";
 
-
 interface DraggableTreeProps {
   onDragStart: (e: React.DragEvent<HTMLDivElement>) => void;
+  onTouchStart: (e: React.TouchEvent<HTMLDivElement>) => void;
 }
 
-const DraggableTree = ({ onDragStart }: DraggableTreeProps) => {
+const DraggableTree = ({ onDragStart, onTouchStart }: DraggableTreeProps) => {
   return (
-    <div className="flex  justify-center " dir="rtl">
+    <div className="flex justify-center" dir="rtl">
       <div
         draggable
         onDragStart={onDragStart}
+        onTouchStart={onTouchStart}
         className="text-green-600 rounded-2xl p-8 cursor-move transform hover:scale-110 transition-all"
       >
         {/* <TreeDeciduous size={64} className="mx-auto animate-bounce mb-2"  /> */}
